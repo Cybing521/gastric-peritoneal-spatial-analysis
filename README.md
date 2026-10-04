@@ -7,17 +7,15 @@
 - 中文分析报告：`latex/analysis/main.pdf`
 - 英文稿：`latex/mdpi/manuscript.docx` 与 `latex/mdpi/manuscript.pdf`
 - 上皮状态轴是另一篇稿：`latex/manuscript/main.pdf`（GSE249874）
-- 客户包：`胃癌腹膜转移分析_delivery/`，其中报告只有中文分析 PDF
+- 客户包：`胃癌腹膜转移_delivery/`
 - 结果表：`06_真实分析结果/`
 - 脚本：`03_脚本/`
 
 ## 数据
 
-原始计数矩阵不在本仓库。正式统计在分析服务器 `shengxin_01`：空间分析目录 `/root/autodl-tmp/gc_spatial_niche`，状态轴目录 `/root/autodl-tmp/gc_state_shift`。
+原始计数矩阵不在本仓库，仍在 Gene Expression Omnibus。公开来源：GSE251950、GSE183904、GSE308231、GSE163558、GSE228598、GSE249874。
 
-公开来源：GSE251950、GSE183904、GSE308231、GSE163558、GSE228598、GSE249874。
-
-克隆后不能重跑原始矩阵。出图脚本读取已保存的结果表。
+克隆后不能重跑原始矩阵。出图脚本读取已保存的结果表。重跑脚本里的数据目录是分析时的本机路径，仓库不提供该目录。
 
 ## 限制
 

@@ -6,4 +6,4 @@
 
 数据与结果表在 `06_真实分析结果/`。脚本在 `03_脚本/`。中文分析报告在 `latex/analysis/`。上皮状态轴是另一篇稿，在 `latex/manuscript/`。
 
-正式统计在 shengxin_01 的 `/root/autodl-tmp/gc_spatial_niche`。状态轴在 `/root/autodl-tmp/gc_state_shift`。
+原始计数矩阵不在本仓库。脚本里的数据目录是分析时的本机路径。
