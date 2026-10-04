@@ -1,0 +1,27 @@
+{
+  "radius_um": 150.0,
+  "n_perm": 200,
+  "seed": 20261002,
+  "high_quantile": 0.75,
+  "primary_sections_contact_above_null": 0,
+  "primary_sections": 9,
+  "spatial_contact_premise": false,
+  "n_pairs_tested": 1000,
+  "n_retained": 0,
+  "ccl2_ccr2": [
+    {
+      "pair": "CCL2–CCR2",
+      "ligand": "CCL2",
+      "receptor": "CCR2",
+      "panel": "prespec",
+      "n_sections_detected": 3,
+      "n_sections_above_null": 0,
+      "median_score": 0.0,
+      "median_perm_p": 1.0,
+      "eligible": true,
+      "retained": false,
+      "loo_stable": false,
+      "loo_failed_when_dropping": "GC1,GC2,GC3,GC4,GC5,GC6,GC7,GC8,GC9"
+    }
+  ]
+}

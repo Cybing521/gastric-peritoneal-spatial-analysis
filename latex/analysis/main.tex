@@ -1,0 +1,41 @@
+\documentclass[12pt,a4paper,fontset=none]{ctexart}
+\input{preamble_analysis}
+
+\title{腹膜肿瘤的C3乘积高于原发样本\\原发灶空间界面仍无超额}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+\begin{abstract}
+在GSE183904里，把每份样本的细胞按标志基因分成成纤维、上皮、巨噬和T细胞，再把配体类均值乘受体类均值。这个比较是在看过类均值之后指定的，单位是样本。C3成纤维乘C3AR1巨噬、C3上皮乘C3AR1巨噬，3份腹膜肿瘤的中位数高于25份原发肿瘤，样本标签置换的Benjamini--Hochberg q为0.027。SPP1巨噬乘CD44巨噬没有过线，q为0.49。CCL2成纤维乘CCR2巨噬的腹膜中位数低于原发。原发灶9张Visium切片上，成纤维--巨噬界面的空间超额中位数仍然不超过0。巨噬STAT3的转录均值在腹膜侧更高，SOCS3没有升高。另下的GSE308231里，3份腹膜实体瘤对3份原发灶，7条乘积的q都高于0.35。3份腹膜样本不能写成功能阻断。
+\end{abstract}
+
+\tableofcontents
+\clearpage
+
+\input{01_problem}
+\input{02_data_setup}
+\input{03_method}
+\input{10_communication}
+\input{11_public_pm}
+\input{04_results}
+\input{09_interface}
+\input{05_diagnostics}
+\input{06_discussion}
+\input{07_limitations}
+\input{08_conclusion}
+
+\begin{thebibliography}{9}
+\bibitem{gut2025}
+Spatial dissection of tumour microenvironments in gastric cancers reveals the immunosuppressive crosstalk between CCL2$^{+}$ fibroblasts and STAT3-activated macrophages.
+\textit{Gut}. 2025;74:714.
+doi:10.1136/gutjnl-2024-332901.
+\bibitem{kumar2022}
+Kumar V, Ramnarayanan K, Sundar R, et al.
+Single-cell atlas of lineage states, tumor microenvironment, and subtype-specific expression programs in gastric cancer.
+\textit{Cancer Discovery}. 2022.
+PMID:34642171.
+\end{thebibliography}
+
+\end{document}

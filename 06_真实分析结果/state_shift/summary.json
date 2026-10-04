@@ -1,0 +1,53 @@
+{
+  "n_cells_detected": 19688657,
+  "n_epithelial": 19649,
+  "n_axis_genes": 7411,
+  "n_tested_positive_weight": 4781,
+  "n_retained": 416,
+  "position_median": {
+    "GS": 10.255554722710013,
+    "IM": 11.900590998557426,
+    "GC": 18.026348343125072
+  },
+  "im_between_gs_and_gc": true,
+  "prespec": [
+    {
+      "gene": "CLDN18",
+      "weight": 0.6725577712059019,
+      "im_median_drop": 0.06784621130251371,
+      "perm_p": 0.08955223880597014,
+      "n_loo_pass": 0,
+      "retained": false,
+      "note": "prespec"
+    },
+    {
+      "gene": "HNF4G",
+      "weight": -0.14182980234424275,
+      "im_median_drop": -0.0021317037227446545,
+      "perm_p": 0.9850746268656716,
+      "n_loo_pass": 0,
+      "retained": false,
+      "note": "prespec"
+    },
+    {
+      "gene": "CDX2",
+      "weight": NaN,
+      "im_median_drop": NaN,
+      "perm_p": NaN,
+      "n_loo_pass": 0,
+      "retained": false,
+      "note": "not on the axis"
+    },
+    {
+      "gene": "MUC2",
+      "weight": NaN,
+      "im_median_drop": NaN,
+      "perm_p": NaN,
+      "n_loo_pass": 0,
+      "retained": false,
+      "note": "not on the axis"
+    }
+  ],
+  "n_perm": 200,
+  "seed": 20261003
+}

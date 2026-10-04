@@ -1,0 +1,75 @@
+\section{原发灶空间界面}
+\label{sec:results}
+
+9例原发灶上，没有配体受体满足保留规则。接触比例在全部10张切片上都低于标签打乱的第95百分位。
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.96\textwidth]{fig_contact.pdf}
+  \caption{10张切片的成纤维--巨噬接触比例都低于标签打乱第95百分位。纵轴从0.75起，以便看清0.81--0.97这一段。}
+  \label{fig:contact}
+\end{figure}
+
+蓝柱是观察接触比例，红柱是同一张切片上标签打乱200次的第95百分位（图~\ref{fig:contact}）。GC5最高，为0.936，对应空分布0.964；GC6-PM最低，为0.808，对应空分布0.971。9例原发灶的观察值落在0.817--0.936，空分布落在0.948--0.971，没有一例观察值更高。GC4和GC9同为0.817，是原发灶里最低的两例，仍比各自空分布低约0.15。前25\%标签加上150\,$\mu$m半径之后，随机点位本来就很容易碰到成纤维高分区，接触比例因此挤在0.8以上，空分布更靠近0.97。
+
+\begin{table}[htbp]
+  \centering
+  \caption{事先指定的5对与达到5/9例的3对均未保留。中位数为9例原发灶界面信号的中位数；置换$p$为各切片置换$p$的中位数。}
+  \label{tab:main}
+  \begin{tabular}{lrrrrl}
+    \toprule
+    配体受体 & 检出切片 & 过线切片 & 中位数 & 置换$p$中位数 & 留一 \\
+    \midrule
+    CCL2--CCR2 & 3 & 0 & 0 & 1.000 & 未稳定 \\
+    C3--C3AR1 & 9 & 1 & 0 & 1.000 & 未稳定 \\
+    SPP1--CD44 & 8 & 1 & 0 & 1.000 & 未稳定 \\
+    TGFB1--TGFBR1 & 9 & 2 & 0 & 1.000 & 未稳定 \\
+    TGFB1--TGFBR2 & 9 & 3 & 0 & 1.000 & 未稳定 \\
+    APP--CD74 & 9 & 5 & 3.37 & 0.030 & 未稳定 \\
+    CD99--CD99 & 9 & 5 & 1.68 & 0.030 & 未稳定 \\
+    SEMA4D--PLXNB2 & 9 & 5 & 0.13 & 0.040 & 未稳定 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+事先指定的5对，9例界面信号的中位数都是0（表~\ref{tab:main}）。TGFB1--TGFBR2在GC3、GC4、GC5三张切片上高于空分布，是这5对里过线切片最多的一对，仍少于5例。CCL2--CCR2的过线切片数为0；CCR2在界面上的检出比例多低于0.05，9例里只有3例达到预先写出的5\%检出。APP--CD74、CD99--CD99和SEMA4D--PLXNB2各有5例高于空分布，置换$p$的中位数为0.030、0.030和0.040。这3对去掉若干单张切片后，过线数降到5例以下，留一规则没有通过。1000对里被保留的数目为0。
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.78\textwidth]{fig_retention.pdf}
+  \caption{虚线是5/9例这一档计数线。三条边碰到虚线，留一之后仍未保留；事先指定的五条边都在虚线左侧。}
+  \label{fig:retention}
+\end{figure}
+
+横轴是9例原发灶里界面信号高于坐标打乱第95百分位的切片数，虚线标在5（图~\ref{fig:retention}）。APP--CD74、CD99--CD99、SEMA4D--PLXNB2的条形停在5，TGFB1--TGFBR2停在3，C3--C3AR1和SPP1--CD44停在1，CCL2--CCR2为0。停在虚线上只说明过线切片数刚好达到5，表~\ref{tab:main}里这3对的留一列仍是未稳定。胶原和纤连蛋白相关边的界面信号绝对值可以高于1，坐标打乱后的第95百分位同样高，因此没有进入这张计数图的右侧。
+
+\begin{table}[htbp]
+  \centering
+  \caption{腹膜肿瘤3份与原发肿瘤26份的样本均值。$\log_2$倍数比较两组中位数；配对列是sample38相对sample36。}
+  \label{tab:pm}
+  \small
+  \setlength{\tabcolsep}{4.5pt}
+  \begin{tabular}{lrrrrr}
+    \toprule
+    基因 & 腹膜中位数 & 原发中位数 & $\log_2$倍数 & 高于原发中位数 & 配对$\log_2$ \\
+    \midrule
+    C3 & 0.876 & 0.045 & 4.24 & 3/3 & 6.41 \\
+    SPP1 & 0.129 & 0.041 & 1.62 & 3/3 & 5.17 \\
+    CCL2 & 0.183 & 0.136 & 0.43 & 3/3 & 5.20 \\
+    CCR2 & 0.019 & 0.012 & 0.56 & 3/3 & 0.87 \\
+    TGFBR2 & 0.490 & 0.270 & 0.86 & 3/3 & 0.65 \\
+    TGFBR1 & 0.079 & 0.058 & 0.45 & 2/3 & 0.65 \\
+    TGFB1 & 0.397 & 0.401 & $-0.01$ & 1/3 & $-0.04$ \\
+    CD44 & 0.745 & 0.865 & $-0.21$ & 1/3 & $-0.19$ \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+3份腹膜肿瘤的C3样本均值中位数为0.876，26份原发肿瘤为0.045，$\log_2$倍数4.24，3份都高于原发中位数（表~\ref{tab:pm}，图~\ref{fig:pm}）。SPP1为1.62倍的$\log_2$差，CCL2为0.43。配对的sample38相对sample36，C3、SPP1、CCL2的$\log_2$倍数为6.41、5.17和5.20；CCL2的配对倍数大，是因为sample36的均值只有0.003。TGFB1两组中位数为0.397和0.401。CD44腹膜中位数0.745，低于原发的0.865。原发肿瘤里已有C3达到0.56和0.75的样本，3份腹膜肿瘤没有和26份原发肿瘤完全分开。
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.72\textwidth]{fig_peritoneal.pdf}
+  \caption{C3的腹膜对原发$\log_2$中位数倍数最高。TGFB1接近0，CD44在腹膜侧更低。红柱为负值。}
+  \label{fig:pm}
+\end{figure}

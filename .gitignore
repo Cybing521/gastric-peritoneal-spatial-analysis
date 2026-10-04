@@ -1,0 +1,9 @@
+.DS_Store
+__pycache__/
+*.pyc
+.work/
+
+latex/**/*.aux
+latex/**/*.log
+latex/**/*.out
+latex/**/*.toc
