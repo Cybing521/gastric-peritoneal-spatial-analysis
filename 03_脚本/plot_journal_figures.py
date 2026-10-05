@@ -8,7 +8,7 @@ from matplotlib import font_manager
 font_manager.fontManager.addfont("/System/Library/Fonts/STHeiti Medium.ttc")
 import numpy as np
 import pandas as pd
-from matplotlib.colors import TwoSlopeNorm
+from matplotlib.colors import LinearSegmentedColormap, SymLogNorm, TwoSlopeNorm
 from scipy.stats import spearmanr
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -92,6 +92,10 @@ def labels(lang):
             "c3fib": "成纤维 C3",
             "c3ar": "巨噬 C3AR1",
             "c3epi": "上皮 C3",
+            "section": "原发切片",
+            "paired": "配对供体",
+            "sample36": "原发 sample 36",
+            "sample38": "腹膜 sample 38",
         }
     return {
         "pair": {
@@ -136,6 +140,10 @@ def labels(lang):
         "c3fib": "Fibroblast C3",
         "c3ar": "Macrophage C3AR1",
         "c3epi": "Epithelial C3",
+        "section": "Primary section",
+        "paired": "Paired donor",
+        "sample36": "Primary sample 36",
+        "sample38": "Peritoneal sample 38",
     }
 
 
@@ -197,20 +205,36 @@ def load():
     return contact, summary, primary, scores, source, cells, comm, perm, stat3, g308, g163
 
 
-def heatmap(ax, mat, row_labels, col_labels, cbar_label):
+def diverging():
+    return LinearSegmentedColormap.from_list("excess", [HEAT_LOW, HEAT_MID, HEAT_HIGH])
+
+
+def heatmap(ax, mat, row_labels, col_labels, cbar_label, annotate=False, symlog=False):
     finite = mat[np.isfinite(mat)]
     if finite.size == 0:
         raise RuntimeError("heatmap has no finite values")
     bound = float(np.max(np.abs(finite)))
-    norm = TwoSlopeNorm(vmin=-bound, vcenter=0.0, vmax=bound)
-    image = ax.imshow(mat, cmap="RdBu_r", norm=norm, aspect="auto")
+    if symlog:
+        norm = SymLogNorm(linthresh=0.002, vmin=-bound, vmax=bound)
+    else:
+        norm = TwoSlopeNorm(vmin=-bound, vcenter=0.0, vmax=bound)
+    image = ax.imshow(mat, cmap=diverging(), norm=norm, aspect="auto", interpolation="nearest")
     ax.set_xticks(range(len(col_labels)))
-    ax.set_xticklabels(col_labels, rotation=30, ha="right")
+    ax.set_xticklabels(col_labels, rotation=40, ha="right")
     ax.set_yticks(range(len(row_labels)))
     ax.set_yticklabels(row_labels)
     ax.tick_params(length=0)
     for spine in ax.spines.values():
-        spine.set_visible(False)
+        spine.set_visible(True)
+        spine.set_linewidth(0.4)
+        spine.set_color("#4D4D4D")
+    if annotate:
+        for i in range(mat.shape[0]):
+            for j in range(mat.shape[1]):
+                if not np.isfinite(mat[i, j]):
+                    continue
+                ink = "white" if abs(mat[i, j]) > bound * 0.55 else "#1A1A1A"
+                ax.text(j, i, f"{mat[i, j]:.1f}", ha="center", va="center", fontsize=5.5, color=ink)
     cbar = ax.figure.colorbar(image, ax=ax, fraction=0.046, pad=0.04)
     cbar.ax.tick_params(labelsize=6, width=0.4, length=2)
     cbar.set_label(cbar_label, fontsize=6.5)
@@ -239,20 +263,21 @@ def strip(ax, frame, value_col, ylabels, lab, legend=True):
 def figure1(lang, contact, summary, primary, scores):
     lab = labels(lang)
     apply_style(lang)
-    fig = plt.figure(figsize=(7.2, 8.0))
-    gs = fig.add_gridspec(3, 2, height_ratios=[1.05, 1.25, 1.25], hspace=0.55, wspace=0.55)
+    fig = plt.figure(figsize=(7.4, 9.4))
+    gs = fig.add_gridspec(4, 2, height_ratios=[0.85, 1.15, 1.25, 1.05], hspace=0.58, wspace=0.5)
     ax = fig.add_subplot(gs[0, :])
-    x = np.arange(len(contact))
-    w = 0.38
-    ax.bar(x - w / 2, contact["contact_fraction"], w, color=PRIMARY, edgecolor="black", linewidth=0.3, label=lab["observed"])
-    ax.bar(x + w / 2, contact["null_p95"], w, color=NULL, edgecolor="black", linewidth=0.3, label=lab["null95"])
-    ax.set_xticks(x)
-    ax.set_xticklabels(contact["sample"], rotation=40, ha="right")
-    low = float(min(contact["contact_fraction"].min(), contact["null_p95"].min()))
-    high = float(max(contact["contact_fraction"].max(), contact["null_p95"].max()))
-    ax.set_ylim(low - 0.02, high + 0.03)
-    ax.set_ylabel(lab["contact"])
-    ax.legend(loc="lower center", bbox_to_anchor=(0.5, 1.02), ncol=2, borderaxespad=0)
+    y = np.arange(len(contact))
+    obs = contact["contact_fraction"].to_numpy(float)
+    null = contact["null_p95"].to_numpy(float)
+    ax.hlines(y, obs, null, color="#BDBDBD", lw=1.1, zorder=1)
+    ax.scatter(obs, y, s=28, color=PRIMARY, edgecolor="black", linewidth=0.3, zorder=3, label=lab["observed"])
+    ax.scatter(null, y, s=28, color=NULL, edgecolor="black", linewidth=0.3, zorder=3, label=lab["null95"])
+    ax.set_yticks(y)
+    ax.set_yticklabels(contact["sample"])
+    ax.set_xlabel(lab["contact"])
+    ax.set_xlim(0.78, 1.0)
+    ax.invert_yaxis()
+    ax.legend(loc="lower left", bbox_to_anchor=(0.0, 1.02), ncol=2, borderaxespad=0, frameon=False)
     tag(ax, "A")
 
     ax = fig.add_subplot(gs[1, 0])
@@ -261,11 +286,10 @@ def figure1(lang, contact, summary, primary, scores):
     y = np.arange(len(screen))
     vals = sub["n_sections_above_null"].to_numpy(float)
     ax.barh(y, vals, color=PRIMARY, edgecolor="black", linewidth=0.3, height=0.62)
-    ax.scatter(vals, y, s=8, color=PRIMARY, zorder=3)
     ax.axvline(5, color=CASE, ls="--", lw=0.7)
     ax.set_yticks(y)
     ax.set_yticklabels([lab["pair"][p] for p in screen])
-    ax.set_xlabel(lab["n_above"])
+    ax.set_xlabel("Sections above null (of 9)" if lang == "en" else "高于零模型的切片数（共9）")
     ax.set_xlim(0, 9.6)
     ax.invert_yaxis()
     tag(ax, "B")
@@ -278,9 +302,12 @@ def figure1(lang, contact, summary, primary, scores):
         hi = float(pri.loc[pair, "median_excess_high"])
         if not (lo <= est <= hi):
             raise RuntimeError(f"interval order failed for {pair}")
-        ax.plot([lo, hi], [i, i], color="black", lw=0.7)
-        ax.scatter([est], [i], s=18, color=PRIMARY, edgecolor="black", linewidth=0.3, zorder=3)
-    ax.axvline(0, color=CASE, ls="--", lw=0.7)
+        color = CASE if hi < 0 else PRIMARY
+        ax.plot([lo, hi], [i, i], color="#4D4D4D", lw=0.8, zorder=2)
+        ax.plot([lo, lo], [i - 0.12, i + 0.12], color="#4D4D4D", lw=0.6)
+        ax.plot([hi, hi], [i - 0.12, i + 0.12], color="#4D4D4D", lw=0.6)
+        ax.scatter([est], [i], s=22, color=color, edgecolor="black", linewidth=0.3, zorder=3)
+    ax.axvline(0, color="black", ls="--", lw=0.6)
     ax.set_yticks(range(len(PAIRS)))
     ax.set_yticklabels([lab["pair"][p] for p in PAIRS])
     ax.set_xlabel(lab["excess"])
@@ -288,16 +315,30 @@ def figure1(lang, contact, summary, primary, scores):
     tag(ax, "C")
 
     ax = fig.add_subplot(gs[2, :])
-    use = scores[scores["group"] == "primary"]
-    mat = np.full((len(PAIRS), 4), np.nan)
+    use = scores[(scores["group"] == "primary") & (scores["radius_um"] == 150)]
+    sections = [f"GC{i}" for i in range(1, 10)]
+    mat = np.full((len(PAIRS), len(sections)), np.nan)
+    for i, pair in enumerate(PAIRS):
+        for j, sample in enumerate(sections):
+            vals = use.loc[(use["pair"] == pair) & (use["sample"] == sample), "excess"]
+            if len(vals) != 1:
+                raise RuntimeError((pair, sample, len(vals)))
+            mat[i, j] = float(vals.iloc[0])
+    heatmap(ax, mat, [lab["pair"][p] for p in PAIRS], sections, "Excess" if lang == "en" else "超额", symlog=True)
+    ax.set_xlabel(lab["section"])
+    tag(ax, "D")
+
+    ax = fig.add_subplot(gs[3, :])
     radii = [100, 150, 200, 300]
+    mat = np.full((len(PAIRS), len(radii)), np.nan)
+    prim = scores[scores["group"] == "primary"]
     for i, pair in enumerate(PAIRS):
         for j, radius in enumerate(radii):
-            vals = use.loc[(use["pair"] == pair) & (use["radius_um"] == radius), "excess"]
+            vals = prim.loc[(prim["pair"] == pair) & (prim["radius_um"] == radius), "excess"]
             mat[i, j] = float(np.median(vals))
-    heatmap(ax, mat, [lab["pair"][p] for p in PAIRS], [str(r) for r in radii], lab["heat_ex"])
+    heatmap(ax, mat, [lab["pair"][p] for p in PAIRS], [str(r) for r in radii], lab["heat_ex"], symlog=True)
     ax.set_xlabel(lab["radius"])
-    tag(ax, "D")
+    tag(ax, "E")
     save(fig, EN if lang == "en" else ZH, "fig1_spatial")
 
 
@@ -318,32 +359,26 @@ def source_matrix(source):
 def figure2(lang, source, comm):
     lab = labels(lang)
     apply_style(lang)
-    fig = plt.figure(figsize=(7.2, 7.0))
-    gs = fig.add_gridspec(2, 2, height_ratios=[1.05, 1.35], hspace=0.42, wspace=0.55)
+    fig = plt.figure(figsize=(7.4, 7.6))
+    gs = fig.add_gridspec(2, 2, height_ratios=[1.15, 1.35], hspace=0.5, wspace=0.72)
     ax = fig.add_subplot(gs[0, 0])
     mat = source_matrix(source)
-    heatmap(ax, mat, GENES, [lab["cls"][c] for c in CLASSES], lab["log2_ratio"])
+    heatmap(ax, mat, GENES, [lab["cls"][c] for c in CLASSES], "log2 ratio" if lang == "en" else "log2比值", annotate=True)
     tag(ax, "A")
     ax = fig.add_subplot(gs[0, 1])
-    show = [("C3", "fib"), ("C3", "epi"), ("C3", "mac"), ("C3AR1", "mac"), ("SPP1", "mac"), ("CD44", "mac"), ("CCL2", "fib"), ("TGFB1", "t")]
-    bars = []
-    names = []
-    for gene, cls in show:
-        row = source[(source["gene"] == gene) & (source["cell_class"] == cls)]
-        if row.empty:
-            continue
-        pm = float(row["pm_median"].iloc[0])
-        pri = float(row["primary_median"].iloc[0])
-        if pm > 0 and pri > 0:
-            bars.append(np.log2(pm / pri))
-            names.append(f"{gene} {lab['cls'][cls]}")
-    order = np.argsort(bars)
-    ax.barh(np.arange(len(order)), np.array(bars)[order], color=[PRIMARY if bars[i] >= 0 else CASE for i in order], edgecolor="black", linewidth=0.25, height=0.7)
-    ax.set_yticks(np.arange(len(order)))
-    ax.set_yticklabels([names[i] for i in order], fontsize=6.5)
-    ax.axvline(0, color="black", lw=0.5)
-    ax.set_xlabel(lab["log2_ratio"])
+    left = comm[comm["sample"].astype(str) == "36"].set_index("pair")
+    right = comm[comm["sample"].astype(str) == "38"].set_index("pair")
+    for i, pair in enumerate(PRODUCTS):
+        y0 = float(np.log1p(left.loc[pair, "score"]))
+        y1 = float(np.log1p(right.loc[pair, "score"]))
+        ax.plot([y0, y1], [i, i], color="#BDBDBD", lw=1.0, zorder=1)
+        ax.scatter([y0], [i], s=22, color=PRIMARY, edgecolor="black", linewidth=0.3, zorder=3, label=lab["sample36"] if i == 0 else None)
+        ax.scatter([y1], [i], s=26, color=CASE, edgecolor="black", linewidth=0.3, zorder=3, label=lab["sample38"] if i == 0 else None)
+    ax.set_yticks(range(len(PRODUCTS)))
+    ax.set_yticklabels([lab["product"][p] for p in PRODUCTS])
+    ax.set_xlabel(lab["log_product"])
     ax.invert_yaxis()
+    ax.legend(loc="lower right")
     tag(ax, "B")
     ax = fig.add_subplot(gs[1, :])
     strip(ax, comm, "score", PRODUCTS, lab)
@@ -354,7 +389,7 @@ def figure2(lang, source, comm):
 def figure3(lang, g308, perm183, perm308, g163):
     lab = labels(lang)
     apply_style(lang)
-    fig, axes = plt.subplots(1, 3, figsize=(7.4, 4.2), gridspec_kw={"wspace": 0.28})
+    fig, axes = plt.subplots(1, 3, figsize=(7.6, 4.6), gridspec_kw={"wspace": 0.32})
     g308 = g308.copy()
     g308["pair_role"] = g308["role"]
     long = []
@@ -368,8 +403,8 @@ def figure3(lang, g308, perm183, perm308, g163):
     y = np.arange(len(PRODUCTS))
     a = perm183.set_index("pair").loc[PRODUCTS, "diff_median"].to_numpy(float)
     b = perm308.set_index("pair").loc[PRODUCTS, "diff_median"].to_numpy(float)
-    ax.scatter(a, y + 0.12, s=22, marker="o", color=PRIMARY, edgecolor="black", linewidth=0.3, label=lab["gse183"], zorder=3)
-    ax.scatter(b, y - 0.12, s=22, marker="s", color=CASE, edgecolor="black", linewidth=0.3, label=lab["gse308"], zorder=3)
+    ax.scatter(a, y + 0.12, s=22, marker="o", color="#000000", edgecolor="black", linewidth=0.3, label=lab["gse183"], zorder=3)
+    ax.scatter(b, y - 0.12, s=22, marker="s", color=PRIMARY, edgecolor="black", linewidth=0.3, label=lab["gse308"], zorder=3)
     for i in range(len(PRODUCTS)):
         ax.plot([a[i], b[i]], [y[i] + 0.12, y[i] - 0.12], color="#BDBDBD", lw=0.6, zorder=1)
     ax.axvline(0, color="black", lw=0.5)
@@ -418,7 +453,9 @@ def figure4(lang, cells, stat3):
     for ax, letter, xcol, ycol, nx, ny, xl, yl in panels:
         use = pri[(pri[nx] >= 20) & (pri[ny] >= 20)][[xcol, ycol]].dropna()
         rho, p = spearmanr(use[xcol], use[ycol])
-        ax.scatter(use[xcol], use[ycol], s=16, color=PRIMARY, edgecolor="black", linewidth=0.25)
+        ax.scatter(use[xcol], use[ycol], s=28, color=PRIMARY, edgecolor="white", linewidth=0.4, zorder=3)
+        ax.axvline(float(use[xcol].median()), color="#BDBDBD", lw=0.6, zorder=1)
+        ax.axhline(float(use[ycol].median()), color="#BDBDBD", lw=0.6, zorder=1)
         ax.set_xlabel(xl)
         ax.set_ylabel(yl)
         ax.text(0.04, 0.96, f"Spearman {rho:.2f}\nn = {len(use)}", transform=ax.transAxes, va="top", fontsize=6.5)
@@ -431,8 +468,18 @@ def figure4(lang, cells, stat3):
     ):
         for xpos, role, color, name in ((0, "primary_tumor", PRIMARY, lab["primary"]), (1, "peritoneal_tumor", CASE, lab["pm"])):
             vals = stat3.loc[stat3["role"] == role, col].to_numpy(float)
-            ax.scatter(np.full(len(vals), xpos) + rng.uniform(-0.08, 0.08, len(vals)), vals, s=16, color=color, edgecolor="black", linewidth=0.25, label=name)
-            ax.plot([-0.18 + xpos, 0.18 + xpos], [np.median(vals), np.median(vals)], color="black", lw=0.9)
+            ax.boxplot(
+                [vals],
+                positions=[xpos],
+                widths=0.42,
+                showfliers=False,
+                patch_artist=True,
+                medianprops={"color": "black", "linewidth": 0.8},
+                whiskerprops={"color": "#4D4D4D", "linewidth": 0.6},
+                capprops={"color": "#4D4D4D", "linewidth": 0.6},
+                boxprops={"facecolor": color, "edgecolor": "black", "linewidth": 0.4, "alpha": 0.35},
+            )
+            ax.scatter(np.full(len(vals), xpos) + rng.uniform(-0.06, 0.06, len(vals)), vals, s=18, color=color, edgecolor="black", linewidth=0.25, label=name, zorder=3)
         ax.set_xticks([0, 1])
         ax.set_xticklabels([lab["primary"], lab["pm"]])
         ax.set_ylabel(title)
